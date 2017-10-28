@@ -52,8 +52,11 @@ begin
     igiZoom:
       if tap = 2 then
       begin
-        i := EventInfo.InertiaVector.X / 2;
-        j := EventInfo.InertiaVector.Y / 2;
+        with EventInfo do
+        begin
+          i := (Location.X-TapLocation.X)/2;
+          j := (Location.Y-TapLocation.Y)/2;
+        end;
         dot1.X := dot1.X - i;
         dot2.X := dot2.X + i;
         dot1.Y := dot1.Y - j;
@@ -76,7 +79,7 @@ end;
 procedure TForm1.Image1MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Single);
 begin
-   //Image1Tap(Sender, PointF(X, Y));
+  // Image1Tap(Sender, PointF(X, Y));
 end;
 
 procedure TForm1.Image1Paint(Sender: TObject; Canvas: TCanvas;
