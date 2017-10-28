@@ -26,7 +26,7 @@ type
   private
     { private êÈåæ }
     tap: integer;
-    dot1, dot2: TPointF;
+    dot1, dot2, pan: TPointF;
   public
     { public êÈåæ }
   end;
@@ -54,8 +54,8 @@ begin
       begin
         with EventInfo do
         begin
-          i := (Location.X-TapLocation.X)/2;
-          j := (Location.Y-TapLocation.Y)/2;
+          i := (Location.X - TapLocation.X) / 2;
+          j := (Location.Y - TapLocation.Y) / 2;
         end;
         dot1.X := dot1.X - i;
         dot2.X := dot2.X + i;
@@ -65,8 +65,14 @@ begin
       end;
     igiPan:
       begin
-        i := EventInfo.InertiaVector.X;
-        j := EventInfo.InertiaVector.Y;
+        if EventInfo.Flags = [TInteractiveGestureFlag.gfBegin] then
+          pan := EventInfo.Location
+        else
+        begin
+          i := EventInfo.Location.X - pan.X;
+          j := EventInfo.Location.Y - pan.Y;
+          pan := EventInfo.Location;
+        end;
         dot1.X := dot1.X + i;
         dot2.X := dot2.X + i;
         dot1.Y := dot1.Y + j;
@@ -96,6 +102,8 @@ begin
 end;
 
 procedure TForm1.Image1Tap(Sender: TObject; const Point: TPointF);
+var
+  i, j: Single;
 begin
   case tap of
     0:
@@ -103,7 +111,15 @@ begin
     1:
       begin
         dot2 := Point;
-        SpeedButton2.Enabled := true;
+        i := dot1.X - dot2.X;
+        j := dot1.Y - dot2.Y;
+        if (i < 20) and (i > -20) and (j < 20) and (j > -20) then
+        begin
+          tap := 0;
+          dot1 := dot2;
+        end
+        else
+          SpeedButton2.Enabled := true;
       end
   else
     tap := 0;
@@ -115,7 +131,9 @@ begin
 end;
 
 procedure TForm1.SpeedButton1Click(Sender: TObject);
-begin;;
+begin;
+
+  ;
 end;
 
 end.
