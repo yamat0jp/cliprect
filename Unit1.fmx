@@ -1,0 +1,49 @@
+object Form1: TForm1
+  Left = 0
+  Top = 0
+  Caption = 'Form1'
+  ClientHeight = 480
+  ClientWidth = 640
+  FormFactor.Width = 320
+  FormFactor.Height = 480
+  FormFactor.Devices = [Desktop]
+  DesignerMasterStyle = 0
+  object Image1: TImage
+    Touch.GestureManager = GestureManager1
+    Touch.InteractiveGestures = [Zoom, PressAndTap]
+    OnGesture = Image1Gesture
+    MultiResBitmap = <
+      item
+      end>
+    Align = Client
+    Size.Width = 640.000000000000000000
+    Size.Height = 440.000000000000000000
+    Size.PlatformDefault = False
+    OnPaint = Image1Paint
+  end
+  object ToolBar1: TToolBar
+    Size.Width = 640.000000000000000000
+    Size.Height = 40.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    object SpeedButton1: TSpeedButton
+      Position.X = 192.000000000000000000
+      Position.Y = 8.000000000000000000
+      Text = 'OPEN'
+      OnClick = SpeedButton1Click
+    end
+    object SpeedButton2: TSpeedButton
+      Position.X = 352.000000000000000000
+      Position.Y = 8.000000000000000000
+      Text = 'CLIP'
+    end
+  end
+  object OpenDialog1: TOpenDialog
+    Left = 392
+    Top = 160
+  end
+  object GestureManager1: TGestureManager
+    Left = 304
+    Top = 160
+  end
+end
