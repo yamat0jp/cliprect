@@ -76,14 +76,11 @@ begin
           (Location.X - TapLocation.X));
     igiPan:
       begin
+        i := EventInfo.Location.X - pan.X;
+        j := EventInfo.Location.Y - pan.Y;
+        pan := EventInfo.Location;
         if EventInfo.Flags = [TInteractiveGestureFlag.gfBegin] then
-          pan := EventInfo.Location
-        else
-        begin
-          i := EventInfo.Location.X - pan.X;
-          j := EventInfo.Location.Y - pan.Y;
-          pan := EventInfo.Location;
-        end;
+          Exit;
         dot1.X := dot1.X + i;
         dot2.X := dot2.X + i;
         dot1.Y := dot1.Y + j;
