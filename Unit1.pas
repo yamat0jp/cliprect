@@ -26,6 +26,8 @@ type
   private
     { private êÈåæ }
     tap: integer;
+    dis: integer;
+    ang: Double;
     dot1, dot2, pan: TPointF;
   public
     { public êÈåæ }
@@ -54,8 +56,11 @@ begin
       begin
         with EventInfo do
         begin
-          i := (Location.X - TapLocation.X) / 2;
-          j := (Location.Y - TapLocation.Y) / 2;
+          i := (Distance - dis) * cos(ang) / 2;
+          j := (Distance - dis) * sin(ang) / 2;
+          dis := Distance;
+          if Flags = [TInteractiveGestureFlag.gfBegin] then
+            Exit;
         end;
         dot1.X := dot1.X - i;
         dot2.X := dot2.X + i;
@@ -63,6 +68,12 @@ begin
         dot2.Y := dot2.Y + j;
         Image1.Repaint;
       end;
+    igiRotate:
+      ang := EventInfo.Angle;
+    igiPressAndTap:
+      with EventInfo do
+        ang := arctan((Location.Y - TapLocation.Y) /
+          (Location.X - TapLocation.X));
     igiPan:
       begin
         if EventInfo.Flags = [TInteractiveGestureFlag.gfBegin] then
