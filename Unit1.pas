@@ -66,14 +66,28 @@ begin
             Exit;
           end;
         end;
-        dot1.X := dot1.X - i;
-        dot2.X := dot2.X + i;
-        dot1.Y := dot1.Y - j;
-        dot2.Y := dot2.Y + j;
+        if dot1.X < dot2.X then
+        begin
+          dot1.X := dot1.X - i;
+          dot2.X := dot2.X + i;
+        end
+        else
+        begin
+          dot1.X := dot1.X + i;
+          dot2.X := dot2.X - i;
+        end;
+        if dot1.Y < dot2.Y then
+        begin
+          dot1.Y := dot1.Y - j;
+          dot2.Y := dot2.Y + j;
+        end
+        else
+        begin
+          dot1.Y := dot1.Y + i;
+          dot2.Y := dot2.Y - i;
+        end;
         Image1.Repaint;
       end;
-    igiRotate:
-      ang := EventInfo.Angle;
     igiPan:
       begin
         i := EventInfo.Location.X - pan.X;
