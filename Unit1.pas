@@ -46,7 +46,7 @@ var
   i, j: Single;
 begin
   case EventInfo.GestureID of
-    igiLongTap:
+    igiDoubleTap:
       begin
         SpeedButton1Click(Sender);
         tap := 0;
