@@ -60,7 +60,11 @@ begin
           j := (Distance - dis) * sin(ang) / 2;
           dis := Distance;
           if Flags = [TInteractiveGestureFlag.gfBegin] then
+          begin
+            ang := arctan((Location.Y - TapLocation.Y) /
+              (Location.X - TapLocation.X));
             Exit;
+          end;
         end;
         dot1.X := dot1.X - i;
         dot2.X := dot2.X + i;
@@ -70,10 +74,6 @@ begin
       end;
     igiRotate:
       ang := EventInfo.Angle;
-    igiPressAndTap:
-      with EventInfo do
-        ang := arctan((Location.Y - TapLocation.Y) /
-          (Location.X - TapLocation.X));
     igiPan:
       begin
         i := EventInfo.Location.X - pan.X;
