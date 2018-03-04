@@ -27,8 +27,9 @@ type
     { private éŒ¾ }
     tap: integer;
     dis: integer;
-    ang: Double;
+    ang: Single;
     dot1, dot2, pan: TPointF;
+    state: integer;
   public
     { public éŒ¾ }
   end;
@@ -44,6 +45,33 @@ procedure TForm1.Image1Gesture(Sender: TObject;
   const EventInfo: TGestureEventInfo; var Handled: Boolean);
 var
   i, j: Single;
+  procedure resize_x;
+  begin
+    if dot1.X < dot2.X then
+    begin
+      dot1.X := dot1.X - i;
+      dot2.X := dot2.X + i;
+    end
+    else
+    begin
+      dot1.X := dot1.X + i;
+      dot2.X := dot2.X - i;
+    end;
+  end;
+  procedure resize_y;
+  begin
+    if dot1.Y < dot2.Y then
+    begin
+      dot1.Y := dot1.Y - j;
+      dot2.Y := dot2.Y + j;
+    end
+    else
+    begin
+      dot1.Y := dot1.Y + i;
+      dot2.Y := dot2.Y - i;
+    end;
+  end;
+
 begin
   case EventInfo.GestureID of
     igiDoubleTap:
@@ -61,32 +89,36 @@ begin
           dis := Distance;
           if Flags = [TInteractiveGestureFlag.gfBegin] then
           begin
-            ang := arctan((Location.Y - TapLocation.Y) /
+            ang := ArcTan((Location.Y - TapLocation.Y) /
               (Location.X - TapLocation.X));
             Exit;
           end;
         end;
-        if dot1.X < dot2.X then
+        if ang < 0 then
+          ang := ang + pi;
+        if ang < pi / 8 then
         begin
-          dot1.X := dot1.X - i;
-          dot2.X := dot2.X + i;
+          state := 1;
+          resize_x;
+        end
+        else if ang < 3 * pi / 8 then
+        begin
+          state := 2;
+          resize_x;
+          resize_y;
+        end
+        else if ang < 6 * pi / 8 then
+        begin
+          state := 3;
+          resize_y;
         end
         else
         begin
-          dot1.X := dot1.X + i;
-          dot2.X := dot2.X - i;
-        end;
-        if dot1.Y < dot2.Y then
-        begin
-          dot1.Y := dot1.Y - j;
-          dot2.Y := dot2.Y + j;
-        end
-        else
-        begin
-          dot1.Y := dot1.Y + i;
-          dot2.Y := dot2.Y - i;
+          state := 1;
+          resize_x;
         end;
         Image1.Repaint;
+        SpeedButton1.Text := state.ToString;
       end;
     igiPan:
       begin
@@ -112,14 +144,72 @@ end;
 
 procedure TForm1.Image1Paint(Sender: TObject; Canvas: TCanvas;
   const ARect: TRectF);
+var
+  s: Single;
 begin
   case tap of
     1:
-      Image1.Canvas.FillEllipse(RectF(dot1.X - 5, dot1.Y - 5, dot1.X + 5,
-        dot1.Y + 5), 1);
+      with Image1.Canvas do
+      begin
+        Fill.Color := TAlphaColors.Red;
+        FillEllipse(RectF(dot1.X - 5, dot1.Y - 5, dot1.X + 5, dot1.Y + 5), 1);
+        Fill.Color := TAlphaColors.White;
+        FillEllipse(RectF(dot1.X - 4, dot1.Y - 4, dot1.X + 4, dot1.Y + 4), 1);
+      end;
     2:
-      Image1.Canvas.FillRect(RectF(dot1.X, dot1.Y, dot2.X, dot2.Y), 0,
-        0, [], 0.5);
+      with Image1.Canvas do
+      begin
+        Fill.Color := TAlphaColors.White;
+        FillRect(RectF(dot1.X, dot1.Y, dot2.X, dot2.Y), 0, 0, [], 0.5);
+        Stroke.Color := TAlphaColors.Black;
+        DrawLine(dot1, dot2, 1);
+        DrawLine(PointF(dot2.X, dot1.Y), PointF(dot1.X, dot2.Y), 1);
+        Fill.Color := TAlphaColors.Green;
+        FillRect(RectF(dot1.X - 2, dot1.Y - 2, dot1.X + 2, dot1.Y + 2), 0,
+          0, [], 1);
+        FillRect(RectF(dot2.X - 2, dot1.Y - 2, dot2.X + 2, dot1.Y + 2), 0,
+          0, [], 1);
+        FillRect(RectF(dot1.X - 2, dot2.Y - 2, dot1.X + 2, dot2.Y + 2), 0,
+          0, [], 1);
+        FillRect(RectF(dot2.X - 2, dot2.Y - 2, dot2.X + 2, dot2.Y + 2), 0,
+          0, [], 1);
+        s := (dot1.X + dot2.X) / 2;
+        FillRect(RectF(s - 2, dot1.Y - 2, s + 2, dot1.Y + 2), 0, 0, [], 1);
+        FillRect(RectF(s - 2, dot2.Y - 2, s + 2, dot2.Y + 2), 0, 0, [], 1);
+        s := (dot1.Y + dot2.Y) / 2;
+        FillRect(RectF(dot1.X - 2, s - 2, dot1.X + 2, s + 2), 0, 0, [], 1);
+        FillRect(RectF(dot2.X - 2, s - 2, dot2.X + 2, s + 2), 0, 0, [], 1);
+        Fill.Color := TAlphaColors.Yellow;
+        case state of
+          1:
+            begin
+              s := (dot1.Y + dot2.Y) / 2;
+              FillRect(RectF(dot1.X - 2, s - 2, dot1.X + 2, s + 2), 0,
+                0, [], 1);
+              FillRect(RectF(dot2.X - 2, s - 2, dot2.X + 2, s + 2), 0,
+                0, [], 1);
+            end;
+          2:
+            begin
+              FillRect(RectF(dot1.X - 2, dot1.Y - 2, dot1.X + 2, dot1.Y + 2), 0,
+                0, [], 1);
+              FillRect(RectF(dot1.X - 2, dot2.Y - 2, dot1.X + 2, dot2.Y + 2), 0,
+                0, [], 1);
+              FillRect(RectF(dot2.X - 2, dot1.Y - 2, dot2.X + 2, dot1.Y + 2), 0,
+                0, [], 1);
+              FillRect(RectF(dot2.X - 2, dot2.Y - 2, dot2.X + 2, dot2.Y + 2), 0,
+                0, [], 1);
+            end;
+          3:
+            begin
+              s := (dot1.X + dot2.X) / 2;
+              FillRect(RectF(s - 2, dot1.Y - 2, s + 2, dot1.Y + 2), 0,
+                0, [], 1);
+              FillRect(RectF(s - 2, dot2.Y - 2, s + 2, dot2.Y + 2), 0,
+                0, [], 1);
+            end;
+        end;
+      end;
   end;
 end;
 
@@ -132,6 +222,7 @@ begin
       dot1 := Point;
     1:
       begin
+        state := 0;
         dot2 := Point;
         i := dot1.X - dot2.X;
         j := dot1.Y - dot2.Y;
