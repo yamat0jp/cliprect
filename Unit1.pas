@@ -96,20 +96,26 @@ begin
         end;
         if ang < 0 then
           ang := ang + pi;
-        if ang < pi / 8 then
+        if ang < pi / 6 then
         begin
           state := 1;
           resize_x;
         end
-        else if ang < 3 * pi / 8 then
+        else if ang < pi / 3 then
         begin
           state := 2;
           resize_x;
           resize_y;
         end
-        else if ang < 6 * pi / 8 then
+        else if ang < 2 * pi / 3 then
         begin
           state := 3;
+          resize_y;
+        end
+        else if ang < 5 * pi / 6 then
+        begin
+          state := 2;
+          resize_x;
           resize_y;
         end
         else
@@ -118,7 +124,6 @@ begin
           resize_x;
         end;
         Image1.Repaint;
-        SpeedButton1.Text := state.ToString;
       end;
     igiPan:
       begin
@@ -139,7 +144,9 @@ end;
 procedure TForm1.Image1MouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Single);
 begin
-  // Image1Tap(Sender, PointF(X, Y));
+{$IFDEF MSWINDOWS}
+  Image1Tap(Sender, PointF(X, Y));
+{$ENDIF}
 end;
 
 procedure TForm1.Image1Paint(Sender: TObject; Canvas: TCanvas;
@@ -159,11 +166,10 @@ begin
     2:
       with Image1.Canvas do
       begin
-        Fill.Color := TAlphaColors.White;
-        FillRect(RectF(dot1.X, dot1.Y, dot2.X, dot2.Y), 0, 0, [], 0.5);
-        Stroke.Color := TAlphaColors.Black;
         DrawLine(dot1, dot2, 1);
         DrawLine(PointF(dot2.X, dot1.Y), PointF(dot1.X, dot2.Y), 1);
+        Fill.Color := TAlphaColors.White;
+        FillRect(RectF(dot1.X, dot1.Y, dot2.X, dot2.Y), 0, 0, [], 0.5);
         Fill.Color := TAlphaColors.Green;
         FillRect(RectF(dot1.X - 2, dot1.Y - 2, dot1.X + 2, dot1.Y + 2), 0,
           0, [], 1);
