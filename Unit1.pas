@@ -79,49 +79,47 @@ begin
         SpeedButton1Click(Sender);
         tap := 0;
       end;
+    igiRotate:
+      with EventInfo do
+      begin
+        ang := ang - Angle;
+        if ang < 0 then
+          ang := ang + pi;
+        if ang < pi / 6 then
+          state := 1
+        else if ang < pi / 3 then
+          state := 2
+        else if ang < 2 * pi / 3 then
+          state := 3
+        else if ang < 5 * pi / 6 then
+          state := 2
+        else
+          state := 1
+      end;
     igiZoom:
       if tap = 2 then
       begin
         with EventInfo do
         begin
-          i := (Distance - dis) * cos(ang) / 2;
-          j := (Distance - dis) * sin(ang) / 2;
+          i := (Distance - dis) * cos(Angle) / 2;
+          j := (Distance - dis) * sin(Angle) / 2;
           dis := Distance;
-          if Flags = [TInteractiveGestureFlag.gfBegin] then
-          begin
-            ang := ArcTan((Location.Y - TapLocation.Y) /
-              (Location.X - TapLocation.X));
-            Exit;
-          end;
         end;
-        if ang < 0 then
-          ang := ang + pi;
-        if ang < pi / 6 then
-        begin
-          state := 1;
-          resize_x;
-        end
-        else if ang < pi / 3 then
-        begin
-          state := 2;
-          resize_x;
-          resize_y;
-        end
-        else if ang < 2 * pi / 3 then
-        begin
-          state := 3;
-          resize_y;
-        end
-        else if ang < 5 * pi / 6 then
-        begin
-          state := 2;
-          resize_x;
-          resize_y;
-        end
-        else
-        begin
-          state := 1;
-          resize_x;
+        case state of
+          0:
+            begin
+              ang := EventInfo.Angle;
+              state := 1;
+            end;
+          1:
+            resize_x;
+          2:
+            begin
+              resize_x;
+              resize_y;
+            end;
+          3:
+            resize_y;
         end;
         Image1.Repaint;
       end;
@@ -130,7 +128,7 @@ begin
         i := EventInfo.Location.X - pan.X;
         j := EventInfo.Location.Y - pan.Y;
         pan := EventInfo.Location;
-        if EventInfo.Flags = [TInteractiveGestureFlag.gfBegin] then
+        if TInteractiveGestureFlag.gfBegin in EventInfo.Flags then
           Exit;
         dot1.X := dot1.X + i;
         dot2.X := dot2.X + i;
